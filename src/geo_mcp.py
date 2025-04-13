@@ -3,6 +3,7 @@ from starlette.applications import Starlette
 from mcp.server.sse import SseServerTransport
 from starlette.requests import Request
 from starlette.routing import Mount, Route
+from starlette.responses import JSONResponse
 import uvicorn
 import httpx
 
@@ -96,3 +97,4 @@ def create_app():
 if __name__ == "__main__":
     app = create_app()
     uvicorn.run(app, host="0.0.0.0", port=8080)
+
