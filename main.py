@@ -82,13 +82,26 @@ async def get_geo_summary() -> dict:
 def create_app():
     sse = SseServerTransport("/messages/")
 
+    # Root route for homepage / healthcheck
+    async def root(request: Request):
+        return JSONResponse(
+            {"message": "Geo MCP is live."},
+            status_code=202
+        )
+
+    # SSE endpoint for NANDA Inspector
     async def handle_sse(request: Request):
         async with sse.connect_sse(request.scope, request.receive, request._send) as (read, write):
-            await mcp._mcp_server.run(read, write, mcp._mcp_server.create_initialization_options())
+            await mcp._mcp_server.run(
+                read,
+                write,
+                mcp._mcp_server.create_initialization_options()
+            )
 
-
+    # Build and return the Starlette app
     return Starlette(
         routes=[
+            Route("/", endpoint=root),  # New root route
             Route("/sse", endpoint=handle_sse),
             Mount("/messages/", app=sse.handle_post_message),
         ]
